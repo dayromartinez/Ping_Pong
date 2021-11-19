@@ -46,11 +46,15 @@
     self.Bar.prototype = {
 
         down: function(){
-            this.y += speed;
+            this.y += this.speed;
         },
 
         up: function(){
-            this.y -= speed;
+            this.y -= this.speed;
+        },
+
+        toString: function(){
+            return "x: "+ this.x +" y: "+ this.y;
         }
     }
 
@@ -94,17 +98,37 @@
 
 })();
 
+
+var board = new Board(800,400);
+var canvas = document.getElementById("canvas");
+var bar = new Bar(20, 150, 40, 100, board);
+var bar2 = new Bar(735, 150, 40, 100, board);
+var boardView = new BoardView(canvas, board);
+
+//Se habilita la flecha de abajo del teclado para mover las barras
+document.addEventListener("keydown", function(event){
+
+    //El keycode de la flecha hacia arriba es 38
+    if(event.keyCode === 38){
+        bar.up();
+    }
+
+    //El keycode de la flecha hacia abajo es 40
+    if(event.keyCode === 40){
+        bar.down();
+    }
+
+    console.log(bar.toString());
+
+})
+
+
 //Ejecución del programa
 window.addEventListener("load",main);
 
 
 function main(){
     
-    var board = new Board(800,400);
-    var canvas = document.getElementById("canvas");
-    var bar = new Bar(20, 150, 40, 100, board);
-    var bar2 = new Bar(735, 150, 40, 100, board);
-    var boardView = new BoardView(canvas, board);
     boardView.draw();
 
 }
