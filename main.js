@@ -34,9 +34,12 @@
         this.y = y;
         this.radio = radio;
         this.board = board;
+        this.speed = 3;
         this.speedY = 0;
         this.speedX = 3;
         this.direction = 1;
+        this.bounceAngle = 0;
+        this.maxBounceAngle = Math.PI / 12;
 
         board.ball = this;
         this.kind = "circle";
@@ -48,6 +51,28 @@
         move: function(){    
             this.x += (this.speedX * this.direction);
             this.y += (this.speedY);
+        },
+
+        get width(){
+            return this.radio * 2;
+        },
+
+        get height(){
+            return this.radio * 2;
+        },
+
+        collision: function(bar){
+            //Reacciona a la colision con una barra que recibe como parámetro
+
+            var relativeIntersectY = (bar.y + (bar.height / 2)) - this.y;
+            var normalizedIntersectY = relativeIntersectY / (bar.height / 2);
+
+            this.bounceAngle = normalizedIntersectY * this.maxBounceAngle;
+            this.speedY = this.speed * -Math.sin(this.bounceAngle);
+            this.speedX = this.speed * Math.cos(this.bounceAngle);
+
+            if(this.x > (this.board.width / 2)) this.direction = -1;
+            else this.direction = 1;
         }
     }
 })();
@@ -116,14 +141,53 @@
             }
         },
 
+        checkCollisions: function(){
+            for (let i = 0; i < this.board.bars.length; i++) {
+                var bar = this.board.bars[i];
+                if(hit(bar, this.board.ball)){
+                    this.board.ball.collision(bar);
+                }
+            }
+        },
+
         play: function(){
             
             if(this.board.playing){
                 this.clean();
                 this.draw();
+                this.checkCollisions();
                 this.board.ball.move();
             }
         }
+    }
+
+    //Revisa si a colisiona con b
+    function hit(a,b){
+
+        var hit = false;
+
+        //Colisiones horizontales
+        if(b.x + b.width >= a.x && b.x < a.x + a.width){
+            //Colisiones verticales
+            if(b.y + b.height >= a.y && b.y < a.y + a.height){
+                hit = true;
+            }
+        }
+
+        //Colision de a con b
+        if(b.x <= a.x && b.x + b.width >= a.x + a.width){
+            if(b.y <= a.y && b.y + b.height >= a.y + a.height){
+                hit = true;
+            }
+        }
+
+        //Colision de b con a
+        if(a.x <= b.x && a.x + a.width >= b.x + b.width){
+            if(a.y <= b.y && a.y + a.height >= b.y + b.height){
+                hit = true;
+            }
+        }
+        return hit;
     }
 
     function draw(ctx, element){
@@ -139,7 +203,6 @@
                 ctx.fill();
                 ctx.closePath();
                 break;
-    
         }
     }
 
