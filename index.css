@@ -1,0 +1,11 @@
+body {
+    font-family: system-ui;
+    background: #f06d06;
+    color: white;
+    text-align: center;
+}
+
+canvas {
+    background-color: rgb(40, 207, 199);
+    color: aqua;
+}
